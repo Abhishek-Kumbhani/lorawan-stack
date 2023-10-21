@@ -11,17 +11,32 @@ For details about compatibility between different releases, see the **Commitment
 
 ### Added
 
+- Locations retrieved from gateway status messages are now be displayed in the gateway map in the Console, even when they are not received through a secure connection.
 - The Network Server ID (NSID, EUI-64) used in LoRaWAN Backend Interfaces is now included in the application uplink message network metadata as well as in the Backend Interfaces `HomeNSAns` message that Identity Server returns to clients. The NSID is configurable via `is.network.ns-id`.
+- It is now possible to trigger a resending of the email validation email from within the Console. The new action is part of the error screen that users see when they log into the Console without having their contact info validated yet (and the network requires validation before usage).
+- Updated Japanese translations for the Console and backend.
+- `--grpc.correlation-ids-ignore-methods` configuration option, which allows certain gRPC methods to be skipped from the correlation ID middleware which adds a correlation ID with the name of the gRPC method. Methods bear the format used by `--grpc.log-ignore-methods`, such as `/ttn.lorawan.v3.GsNs/HandleUplink`.
+- Support for setting multiple frequency plans for gateways from the Console.
+- The `ns-db purge` command to purge unused data from the Network Server database.
 
 ### Changed
 
-### Deprecated
-
-### Removed
+- Users can now request a new email for the account validation from time to time instead of once per validation, the interval between email requests is determined by `is.user-registration.contact-info-validation.retry-interval` and by default it is an hour.
+- Traffic related correlation IDs have been simplified. Previously one correlation ID per component was added as traffic passed through different stack components. Now a singular correlation ID relating to the entry point of the message will be added (such as `gs:uplink:xxx` for uplinks, or `as:downlink:xxx` for downlinks), and subsequent components will no longer add any extra correlation IDs (such as `ns:uplink:xxx` or `as:up:xxx`). The uplink entry points are `pba` and `gs`, while the downlink entry points are `pba`, `ns` and `as`.
+- Packet Broker Agent uplink tokens are now serialized in a more efficient manner.
+- The Network Server now stores only the most recent uplinks tokens.
+- The Application Server webhook health system now records failures only every retry interval while in monitor mode, as opposed to recording every failure.
+  - Monitor mode in this context refers to situations in which either `--as.webhooks.unhealthy-attempts-threshold` or `--as.webhooks.unhealthy-retry-interval` are less or equal to zero. In such situations, the Application Server will record failures but will not stop the execution of the webhooks.
+  - Using a retry interval of zero and a non zero attempts threshold restores the previous behavior.
 
 ### Fixed
 
-### Security
+- Providing fixed downlink paths to the `ttn-lw-cli devices downlink {push|replace}` commands using the `-class-b-c.gateways` parameter. The gateways IDs are comma separated, and the antenna index `i` can be provided by suffixing the ID with `:i` (i.e. `my-gateway:0` for antenna index 0). The group index `j` can be provided by suffixing the ID with `:j` (i.e. `my-gateway:0:1` for antenna index 0 and group index 1). The antenna index is mandatory if a group index is to be provided, but optional otherwise.
+- Gateway registration without gateway EUI not working.
+- Listing deleted entities is now fixed for both admin and standard users, which previously returned an `account_not_found` error.
+- Update to an user's `PrimaryEmailAddress` via a non admin now invalidates the `PrimaryEmailAddressValidatedAt` as it was intended.
+- Negative number support in Cayenne LPP.
+- Fix panic in snapcraft CLI deployment, commands will no longer generate a panic error message when telemetry is enabled.
 
 ## [3.27.2] - 2023-09-14
 
@@ -2675,7 +2690,8 @@ For details about compatibility between different releases, see the **Commitment
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.27.2...v3.27
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.28.0...v3.28
+[3.28.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.27.2...v3.28.0
 [3.27.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.27.1...v3.27.2
 [3.27.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.27.0...v3.27.1
 [3.27.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.26.2...v3.27.0

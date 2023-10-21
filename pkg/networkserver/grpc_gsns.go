@@ -790,10 +790,17 @@ func appendRecentUplink(
 	up *ttnpb.UplinkMessage,
 	window int,
 ) []*ttnpb.MACState_UplinkMessage {
+	ups := toMACStateUplinkMessages(up)
 	if n := len(recent); n > 0 {
 		recent[n-1].CorrelationIds = nil
+		if len(downlinkPathsFromRecentUplinks(ups...)) > 0 {
+			for _, md := range recent[n-1].RxMetadata {
+				md.UplinkToken = nil
+				md.DownlinkPathConstraint = ttnpb.DownlinkPathConstraint_DOWNLINK_PATH_CONSTRAINT_NEVER
+			}
+		}
 	}
-	recent = append(recent, toMACStateUplinkMessages(up)...)
+	recent = append(recent, ups...)
 	if extra := len(recent) - window; extra > 0 {
 		recent = recent[extra:]
 	}
@@ -1389,7 +1396,7 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 	return nil
 }
 
-var errRejoinRequest = errors.DefineUnimplemented("rejoin_request", "rejoin-request handling is not implemented")
+var errRejoinRequest = errors.DefineUnavailable("rejoin_request", "rejoin-request handling is not implemented")
 
 func (ns *NetworkServer) handleRejoinRequest(ctx context.Context, up *ttnpb.UplinkMessage) error {
 	defer trace.StartRegion(ctx, "handle rejoin request").End()
@@ -1404,10 +1411,8 @@ func (ns *NetworkServer) HandleUplink(ctx context.Context, up *ttnpb.UplinkMessa
 		return nil, err
 	}
 
-	ctx = events.ContextWithCorrelationID(ctx, append(
-		up.CorrelationIds,
-		fmt.Sprintf("ns:uplink:%s", events.NewCorrelationID()),
-	)...)
+	ctx = events.ContextWithCorrelationID(ctx, up.CorrelationIds...)
+	ctx = appendUplinkCorrelationID(ctx)
 	up.CorrelationIds = events.CorrelationIDsFromContext(ctx)
 
 	registerUplinkLatency(ctx, up)
@@ -1487,9 +1492,8 @@ func (ns *NetworkServer) ReportTxAcknowledgment(
 	}
 
 	ack := txAck.GetTxAck()
-	ctx = events.ContextWithCorrelationID(
-		ctx, append(ack.CorrelationIds, fmt.Sprintf("ns:tx_ack:%s", events.NewCorrelationID()))...,
-	)
+	ctx = events.ContextWithCorrelationID(ctx, ack.CorrelationIds...)
+	ctx = appendTxAckCorrelationID(ctx)
 
 	down, err := ns.scheduledDownlinkMatcher.Match(ctx, ack)
 	if err != nil {

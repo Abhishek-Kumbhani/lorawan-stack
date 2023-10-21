@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"go.thethings.network/lorawan-stack/v3/pkg/band"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	. "go.thethings.network/lorawan-stack/v3/pkg/networkserver/internal"
@@ -26,6 +27,12 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/networkserver/mac"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/v3/pkg/unique"
+)
+
+var (
+	appendUplinkCorrelationID   = events.RegisterCorrelationIDPrefix("uplink", "ns:uplink")
+	appendDownlinkCorrelationID = events.RegisterCorrelationIDPrefix("downlink", "ns:downlink")
+	appendTxAckCorrelationID    = events.RegisterCorrelationIDPrefix("tx_ack", "ns:tx_ack")
 )
 
 // nsScheduleWindow returns minimum time.Duration between downlink being added to the queue and it being sent to GS for transmission.
@@ -405,6 +412,10 @@ func (ns *NetworkServer) submitApplicationUplinks(ctx context.Context, ups ...*t
 	))
 	if err := ns.uplinkSubmissionPool.Publish(ctx, ups); err != nil {
 		log.FromContext(ctx).WithError(err).Warn("Failed to enqueue application uplinks in submission pool")
+		if nonRetryableUplinkError(err) {
+			log.FromContext(ctx).Warn("Error is non-retryable, dropping application uplinks")
+			return
+		}
 		ns.enqueueApplicationUplinks(ctx, ups...)
 		return
 	}
@@ -419,8 +430,11 @@ func (ns *NetworkServer) handleUplinkSubmission(ctx context.Context, ups []*ttnp
 	}
 	if err := ns.sendApplicationUplinks(ctx, ttnpb.NewNsAsClient(conn), ups...); err != nil {
 		log.FromContext(ctx).WithError(err).Warn("Failed to send application uplinks to Application Server")
+		if nonRetryableUplinkError(err) {
+			log.FromContext(ctx).Warn("Error is non-retryable, dropping application uplinks")
+			return
+		}
 		ns.enqueueApplicationUplinks(ctx, ups...)
-		return
 	}
 }
 
@@ -434,4 +448,35 @@ func (ns *NetworkServer) networkIdentifiers(ctx context.Context) *ttnpb.NetworkI
 		networkIDs.NsId = nsID.Bytes()
 	}
 	return networkIDs
+}
+
+var (
+	deviceDownlinkBasePaths = [...]string{
+		"mac_state",
+		"multicast",
+		"pending_mac_state",
+		"pending_session",
+		"session",
+	}
+	deviceDownlinkFullPaths = [...]string{
+		"frequency_plan_id",
+		"last_dev_status_received_at",
+		"lorawan_phy_version",
+		"mac_settings",
+		"mac_state",
+		"multicast",
+		"pending_mac_state",
+		"pending_session",
+		"session",
+	}
+)
+
+func nonRetryableUplinkError(err error) bool {
+	return errors.IsFailedPrecondition(err) ||
+		errors.IsResourceExhausted(err) ||
+		errors.IsAborted(err) ||
+		errors.IsUnauthenticated(err) ||
+		errors.IsPermissionDenied(err) ||
+		errors.IsUnimplemented(err) ||
+		errors.IsInternal(err)
 }

@@ -1349,6 +1349,15 @@
       "file": "end_devices.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:class_b_c_gateway_identifiers": {
+    "translations": {
+      "en": "invalid class B/C gateway identifiers"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "flags.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:conflicting_paths": {
     "translations": {
       "en": "conflicting set and unset field mask paths"
@@ -2108,6 +2117,15 @@
   "error:pkg/applicationserver/io/grpc:payload_crypto_skipped": {
     "translations": {
       "en": "payload crypto skipped"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/grpc",
+      "file": "grpc.go"
+    }
+  },
+  "error:pkg/applicationserver/io/grpc:simulated": {
+    "translations": {
+      "en": "simulated traffic cannot be simulated again"
     },
     "description": {
       "package": "pkg/applicationserver/io/grpc",
@@ -6229,7 +6247,7 @@
   },
   "error:pkg/identityserver:validations_already_sent": {
     "translations": {
-      "en": "validations for this contact info already sent"
+      "en": "validations for this contact info already sent, wait `{retry_interval}` before retrying"
     },
     "description": {
       "package": "pkg/identityserver",
@@ -7064,6 +7082,15 @@
       "file": "javascript.go"
     }
   },
+  "error:pkg/messageprocessors/javascript:output_encoding": {
+    "translations": {
+      "en": "{errors}"
+    },
+    "description": {
+      "package": "pkg/messageprocessors/javascript",
+      "file": "javascript.go"
+    }
+  },
   "error:pkg/messageprocessors/javascript:output_errors": {
     "translations": {
       "en": "{errors}"
@@ -7343,6 +7370,15 @@
       "file": "application_uplink_queue.go"
     }
   },
+  "error:pkg/networkserver/redis:invalid_uid": {
+    "translations": {
+      "en": "invalid UID"
+    },
+    "description": {
+      "package": "pkg/networkserver/redis",
+      "file": "application_uplink_queue.go"
+    }
+  },
   "error:pkg/networkserver/redis:missing_downlink_correlation_id": {
     "translations": {
       "en": "missing identifier correlation ID on downlink message"
@@ -7368,6 +7404,15 @@
     "description": {
       "package": "pkg/networkserver/redis",
       "file": "registry.go"
+    }
+  },
+  "error:pkg/networkserver/redis:missing_uid": {
+    "translations": {
+      "en": "missing UID"
+    },
+    "description": {
+      "package": "pkg/networkserver/redis",
+      "file": "application_uplink_queue.go"
     }
   },
   "error:pkg/networkserver/redis:no_uplink_match": {
@@ -10496,6 +10541,15 @@
   "event:ns.mac.ping_slot_channel.answer.accept": {
     "translations": {
       "en": "ping slot channel accept received"
+    },
+    "description": {
+      "package": "pkg/networkserver/mac",
+      "file": "ping_slot_channel.go"
+    }
+  },
+  "event:ns.mac.ping_slot_channel.answer.reject": {
+    "translations": {
+      "en": "ping slot channel rejection received"
     },
     "description": {
       "package": "pkg/networkserver/mac",

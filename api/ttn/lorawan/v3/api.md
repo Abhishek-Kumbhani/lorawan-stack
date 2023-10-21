@@ -604,6 +604,10 @@
   - [Message `ListHomeNetworkRoutingPoliciesRequest`](#ttn.lorawan.v3.ListHomeNetworkRoutingPoliciesRequest)
   - [Message `ListPacketBrokerHomeNetworksRequest`](#ttn.lorawan.v3.ListPacketBrokerHomeNetworksRequest)
   - [Message `ListPacketBrokerNetworksRequest`](#ttn.lorawan.v3.ListPacketBrokerNetworksRequest)
+  - [Message `PacketBrokerAgentCompoundUplinkToken`](#ttn.lorawan.v3.PacketBrokerAgentCompoundUplinkToken)
+  - [Message `PacketBrokerAgentEncryptedPayload`](#ttn.lorawan.v3.PacketBrokerAgentEncryptedPayload)
+  - [Message `PacketBrokerAgentGatewayUplinkToken`](#ttn.lorawan.v3.PacketBrokerAgentGatewayUplinkToken)
+  - [Message `PacketBrokerAgentUplinkToken`](#ttn.lorawan.v3.PacketBrokerAgentUplinkToken)
   - [Message `PacketBrokerDefaultGatewayVisibility`](#ttn.lorawan.v3.PacketBrokerDefaultGatewayVisibility)
   - [Message `PacketBrokerDefaultRoutingPolicy`](#ttn.lorawan.v3.PacketBrokerDefaultRoutingPolicy)
   - [Message `PacketBrokerDevAddrBlock`](#ttn.lorawan.v3.PacketBrokerDevAddrBlock)
@@ -2528,6 +2532,8 @@ PeerInfo
 | `max_retransmit_timeout` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
 | `tx_offset` | [`float`](#float) | repeated |  |
 | `max_adr_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  |  |
+| `relay_forward_delay` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
+| `relay_receive_delay` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
 | `tx_param_setup_req_support` | [`bool`](#bool) |  |  |
 | `default_max_eirp` | [`float`](#float) |  |  |
 | `default_rx2_parameters` | [`BandDescription.Rx2Parameters`](#ttn.lorawan.v3.BandDescription.Rx2Parameters) |  |  |
@@ -2727,6 +2733,7 @@ PeerInfo
 | `contact_info` | [`ContactInfo`](#ttn.lorawan.v3.ContactInfo) | repeated |  |
 | `created_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
 | `expires_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `updated_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
 
 #### Field Rules
 
@@ -5637,6 +5644,8 @@ OrganizationOrUserIdentifiers contains either organization or user identifiers.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `required` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `token_ttl` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
+| `retry_interval` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | The minimum interval between validation emails. |
 
 ### <a name="ttn.lorawan.v3.IsConfiguration.UserRegistration.Invitation">Message `IsConfiguration.UserRegistration.Invitation`</a>
 
@@ -7515,7 +7524,7 @@ Application uplink message.
 | `downlink_queue_invalidated` | [`ApplicationInvalidatedDownlinks`](#ttn.lorawan.v3.ApplicationInvalidatedDownlinks) |  |  |
 | `location_solved` | [`ApplicationLocation`](#ttn.lorawan.v3.ApplicationLocation) |  |  |
 | `service_data` | [`ApplicationServiceData`](#ttn.lorawan.v3.ApplicationServiceData) |  |  |
-| `simulated` | [`bool`](#bool) |  | Signals if the message is coming from the Network Server or is simulated. |
+| `simulated` | [`bool`](#bool) |  | Signals if the message is coming from the Network Server or is simulated. The Application Server automatically sets this field, and callers must not manually set it. |
 
 #### Field Rules
 
@@ -8689,6 +8698,36 @@ organization registrations.
 | `limit` | <p>`uint32.lte`: `1000`</p> |
 | `tenant_id_contains` | <p>`string.max_len`: `100`</p> |
 | `name_contains` | <p>`string.max_len`: `100`</p> |
+
+### <a name="ttn.lorawan.v3.PacketBrokerAgentCompoundUplinkToken">Message `PacketBrokerAgentCompoundUplinkToken`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gateway` | [`bytes`](#bytes) |  |  |
+| `forwarder` | [`bytes`](#bytes) |  |  |
+| `agent` | [`PacketBrokerAgentUplinkToken`](#ttn.lorawan.v3.PacketBrokerAgentUplinkToken) |  |  |
+
+### <a name="ttn.lorawan.v3.PacketBrokerAgentEncryptedPayload">Message `PacketBrokerAgentEncryptedPayload`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ciphertext` | [`bytes`](#bytes) |  |  |
+| `nonce` | [`bytes`](#bytes) |  |  |
+
+### <a name="ttn.lorawan.v3.PacketBrokerAgentGatewayUplinkToken">Message `PacketBrokerAgentGatewayUplinkToken`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gateway_uid` | [`string`](#string) |  |  |
+| `token` | [`bytes`](#bytes) |  |  |
+
+### <a name="ttn.lorawan.v3.PacketBrokerAgentUplinkToken">Message `PacketBrokerAgentUplinkToken`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `forwarder_net_id` | [`bytes`](#bytes) |  |  |
+| `forwarder_tenant_id` | [`string`](#string) |  |  |
+| `forwarder_cluster_id` | [`string`](#string) |  |  |
 
 ### <a name="ttn.lorawan.v3.PacketBrokerDefaultGatewayVisibility">Message `PacketBrokerDefaultGatewayVisibility`</a>
 
