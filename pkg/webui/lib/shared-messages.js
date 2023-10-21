@@ -275,6 +275,7 @@ export default defineMessages({
   grantAdminStatus: 'Grant this user admin status',
   grpcService: 'GRPC service',
   gsServerAddressDescription: 'The address of the Gateway Server to connect to',
+  generateWebHookToken: 'Generate webhook token',
   hardware: 'Hardware',
   hardwareVersion: 'Hardware version',
   homeNetID: 'Home NetID',
